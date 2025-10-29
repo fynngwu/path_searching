@@ -11,10 +11,12 @@
 #include <unordered_map>
 #include <utility>
 #include <memory>
+#include "plan_env/edt_environment.h"
 
-namespace path_searching
-{
-
+namespace fast_planner {
+// #define REACH_HORIZON 1
+// #define REACH_END 2
+// #define NO_PATH 3
 #define IN_CLOSE_SET 'a'
 #define IN_OPEN_SET 'b'
 #define NOT_EXPAND 'c'
@@ -98,12 +100,10 @@ class NodeHashTable {
   }
 };
 
-#include <plan_env/edt_environment.h>
-
 class KinodynamicAstar {
  private:
   /* ---------- main data structure ---------- */
-  std::vector<PathNodePtr> path_node_pool_;
+  vector<PathNodePtr> path_node_pool_;
   int use_node_num_, iter_num_;
   NodeHashTable expanded_nodes_;
   std::priority_queue<PathNodePtr, std::vector<PathNodePtr>, NodeComparator>
@@ -113,7 +113,8 @@ class KinodynamicAstar {
   /* ---------- record data ---------- */
   Eigen::Vector3d start_vel_, end_vel_, start_acc_;
   Eigen::Matrix<double, 6, 6> phi_;  // state transit matrix
-  std::shared_ptr<plan_env::EDTEnvironment> edt_environment_;
+  // shared_ptr<SDFMap> sdf_map;
+  std::shared_ptr<fast_planner::EDTEnvironment> edt_environment_;
   bool is_shot_succ_ = false;
   Eigen::MatrixXd coef_shot_;
   double t_shot_;
@@ -139,8 +140,8 @@ class KinodynamicAstar {
   void retrievePath(PathNodePtr end_node);
 
   /* shot trajectory */
-  std::vector<double> cubic(double a, double b, double c, double d);
-  std::vector<double> quartic(double a, double b, double c, double d, double e);
+  vector<double> cubic(double a, double b, double c, double d);
+  vector<double> quartic(double a, double b, double c, double d, double e);
   bool computeShotTraj(Eigen::VectorXd state1, Eigen::VectorXd state2,
                        double time_to_goal);
   double estimateHeuristic(Eigen::VectorXd x1, Eigen::VectorXd x2,
@@ -166,20 +167,20 @@ class KinodynamicAstar {
              Eigen::Vector3d end_vel, bool init, bool dynamic = false,
              double time_start = -1.0);
 
-  void setEnvironment(const std::shared_ptr<plan_env::EDTEnvironment>& env);
+  void setEnvironment(const std::shared_ptr<fast_planner::EDTEnvironment>& env);
 
   std::vector<Eigen::Vector3d> getKinoTraj(double delta_t);
 
-  void getSamples(double& ts, std::vector<Eigen::Vector3d>& point_set,
-                  std::vector<Eigen::Vector3d>& start_end_derivatives);
+  void getSamples(double& ts, vector<Eigen::Vector3d>& point_set,
+                  vector<Eigen::Vector3d>& start_end_derivatives);
 
   std::vector<PathNodePtr> getVisitedNodes();
 
-  typedef std::shared_ptr<KinodynamicAstar> Ptr;
+  typedef shared_ptr<KinodynamicAstar> Ptr;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-}  // namespace path_searching
+}  // namespace fast_planner
 
 #endif

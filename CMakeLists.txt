@@ -11,6 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 find_package(plan_env REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -25,6 +26,7 @@ ament_target_dependencies(path_searching_lib
   std_msgs
   geometry_msgs
   nav_msgs
+  visualization_msgs
   plan_env
 )
 
