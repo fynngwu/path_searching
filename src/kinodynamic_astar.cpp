@@ -23,7 +23,7 @@
 
 #include <path_searching/kinodynamic_astar.h>
 #include <sstream>
-#include <plan_env/sdf_map.h>
+#include <plan_env/sdf_node.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -323,17 +323,18 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
 
 void KinodynamicAstar::setParam(rclcpp::Node::SharedPtr node)
 {
-  node->declare_parameter<double>("search/max_tau", -1.0);
-  node->declare_parameter<double>("search/init_max_tau", -1.0);
-  node->declare_parameter<double>("search/max_vel", -1.0);
-  node->declare_parameter<double>("search/max_acc", -1.0);
-  node->declare_parameter<double>("search/w_time", -1.0);
-  node->declare_parameter<double>("search/horizon", -1.0);
-  node->declare_parameter<double>("search/resolution_astar", -1.0);
-  node->declare_parameter<double>("search/time_resolution", -1.0);
-  node->declare_parameter<double>("search/lambda_heu", -1.0);
-  node->declare_parameter<int>("search/allocate_num", -1);
-  node->declare_parameter<int>("search/check_num", -1);
+  // Default values from Fast-Planner kino_algorithm.xml
+  node->declare_parameter<double>("search/max_tau", 0.6);
+  node->declare_parameter<double>("search/init_max_tau", 0.8);
+  node->declare_parameter<double>("search/max_vel", 3.0);
+  node->declare_parameter<double>("search/max_acc", 2.0);
+  node->declare_parameter<double>("search/w_time", 10.0);
+  node->declare_parameter<double>("search/horizon", 7.0);
+  node->declare_parameter<double>("search/resolution_astar", 0.1);
+  node->declare_parameter<double>("search/time_resolution", 0.8);
+  node->declare_parameter<double>("search/lambda_heu", 5.0);
+  node->declare_parameter<int>("search/allocate_num", 100000);
+  node->declare_parameter<int>("search/check_num", 5);
   node->declare_parameter<bool>("search/optimistic", true);
   node->declare_parameter<double>("search/vel_margin", 0.0);
 

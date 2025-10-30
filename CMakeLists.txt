@@ -16,66 +16,37 @@ find_package(plan_env REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+
+include_directories(
+  include
+  ${Eigen3_INCLUDE_DIRS} 
+)
 # Create library
-add_library(path_searching_lib
+add_library(${PROJECT_NAME}
   src/kinodynamic_astar.cpp
 )
+set(dependencies rclcpp std_msgs geometry_msgs nav_msgs visualization_msgs plan_env)
+ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
-ament_target_dependencies(path_searching_lib
-  rclcpp
-  std_msgs
-  geometry_msgs
-  nav_msgs
-  visualization_msgs
-  plan_env
-)
-
-target_include_directories(path_searching_lib PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-)
-
-target_link_libraries(path_searching_lib
-  Eigen3::Eigen
-)
-
-# Install library
-install(TARGETS path_searching_lib
-  EXPORT path_searching_lib
+# Install targets
+install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
 )
 
-# Install headers
+# Install headers - with trailing slash to copy contents directly to include/
+# This creates install/include/path_searching/xxx.h structure, allowing #include <path_searching/xxx.h>
 install(DIRECTORY include/
-  DESTINATION include
+  DESTINATION include/
 )
 
-# Create executable
-# add_executable(kinodynamic_astar_node
-#   src/kinodynamic_astar_node.cpp
-# )
+# Export include directories explicitly
+# This ensures other packages can use #include <path_searching/xxx.h>
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+ament_export_dependencies(${dependencies})
 
-# ament_target_dependencies(kinodynamic_astar_node
-#   rclcpp
-#   std_msgs
-#   geometry_msgs
-#   nav_msgs
-#   visualization_msgs
-#   plan_env
-# )
-
-# target_link_libraries(kinodynamic_astar_node
-#   path_searching_lib
-#   Eigen3::Eigen
-# )
-
-# Install executable
-# install(TARGETS kinodynamic_astar_node
-#   DESTINATION lib/${PROJECT_NAME}
-# )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
