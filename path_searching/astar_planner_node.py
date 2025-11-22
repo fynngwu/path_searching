@@ -28,6 +28,7 @@ from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSHistoryPolicy, QoSReli
 import json
 import numpy as np
 import heapq
+from math import floor
 
 
 class AStarPlannerNode(Node):
@@ -136,8 +137,8 @@ class AStarPlannerNode(Node):
         Returns:
             tuple: (row, col) grid索引
         """
-        row = int((x - self.map2_origin[0]) / self.grid_resolution)
-        col = int((y - self.map2_origin[1]) / self.grid_resolution)
+        row = floor((x - self.map2_origin[0]) / self.grid_resolution)
+        col = floor((y - self.map2_origin[1]) / self.grid_resolution)
         return row, col
     
     def kfs_data_callback(self, msg):
@@ -169,6 +170,7 @@ class AStarPlannerNode(Node):
     def direction_callback(self, msg):
         """处理方向选择消息，仅更新direction_override，不触发规划"""
         direction = msg.data.strip().lower()
+        self.trigger_received=True
         if direction == "left":
             self.direction_override = "left"
             self.get_logger().info('Direction override: LEFT (col==2 kfs=1 not obstacle)')
@@ -359,9 +361,12 @@ class AStarPlannerNode(Node):
             list: [(row, col), ...] 路径点列表，失败返回None
         """
         # 从当前位置计算起点grid坐标
+        add_new_start=False
         start_row, start_col = self.map_to_grid_coords(self.current_pos[0], self.current_pos[1])
-        
-        self.get_logger().info(f'Planning from current position: grid [{start_row}, {start_col}] to multiple goals')
+        if start_row==-1 and start_col==1:
+            add_new_start=True
+            start_row, start_col = 0,1
+        self.get_logger().info(f'Planning from current position: grid [{start_row}, {start_col}],currentpose[{self.current_pos[0],self.current_pos[1]}] to multiple goals')
         
         # 规划到所有目标点，选择cost最小的
         best_path = None
@@ -385,7 +390,7 @@ class AStarPlannerNode(Node):
             return None
         
         self.get_logger().info(f'Selected path to {best_goal} with cost={best_cost:.2f}, length={len(best_path)}')
-        return best_path
+        return [(-1,1)]+best_path if add_new_start else best_path
     
     def grid_to_map_coords(self, row, col):
         """

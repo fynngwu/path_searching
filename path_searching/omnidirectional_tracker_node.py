@@ -19,6 +19,7 @@ from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSHistoryPolicy, QoSReli
 import math
 import numpy as np
 import json
+from math import floor
 
 
 class OmnidirectionalTrackerNode(Node):
@@ -209,8 +210,8 @@ class OmnidirectionalTrackerNode(Node):
         Returns:
             tuple: (row, col) grid索引
         """
-        row = int((x - self.map2_origin[0]) / self.grid_resolution)
-        col = int((y - self.map2_origin[1]) / self.grid_resolution)
+        row = floor((x - self.map2_origin[0]) / self.grid_resolution)
+        col = floor((y - self.map2_origin[1]) / self.grid_resolution)
         return row, col
     
     def get_target_kfs_value(self, target):
